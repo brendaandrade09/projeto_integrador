@@ -8,12 +8,12 @@ export function buscarPorId(id, callback) {
     conexao.query(sql,[id], callback);
 };
 export function criar(dados, callback) { 
-    const sql = "INSERT INTO enderecos (usuario_id, numero, bairro, cidade, estado, cep) VALUES (?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO enderecos (usuario_id, logradouro, numero, bairro, cidade, estado, cep) VALUES (?, ?, ?, ?, ?, ?)";
     conexao.query(sql,[dados.titulo, dados.ano_lancamento, dados.estudio_id], callback);
 };
 export function atualizar(id, dados, callback) { 
-    const sql = "UPDATE enderecos SET usuario_id = ?, numero = ?, bairro = ?, cidade = ?, estado = ?, cep = ? WHERE id = ?";
-    conexao.query(sql,[dados.titulo, dados.ano_lancamento, dados.estudio_id, id], callback);
+    const sql = "UPDATE enderecos SET usuario_id = ?, logradouro = ?, numero = ?, bairro = ?, cidade = ?, estado = ?, cep = ? WHERE id = ?";
+    conexao.query(sql,[dados.usuario_id, dados.numero, dados.bairro, dados.cidade, dados.estado, dados.cep, id], callback);
 };
 export function excluir(id, callback) { 
     const sql = "DELETE FROM enderecos WHERE id = ?";

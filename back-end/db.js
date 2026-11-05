@@ -1,7 +1,5 @@
-
-require("dotenv").config();
-
-const mariadb = require("mariadb");
+import "dotenv/config";
+import mariadb from "mariadb";
 
 const conexao = mariadb.createPool({
   host: process.env.DB_HOST,
@@ -19,4 +17,4 @@ conexao.connect((erro) => {
   console.log("Banco conectado!");
 });
 
-module.exports = conexao;
+export default conexao;

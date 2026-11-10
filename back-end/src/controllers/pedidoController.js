@@ -1,31 +1,62 @@
 import conexao from "../../db.js";
 
-export function listar(callback) {
-    const sql = "SELECT p.*, u.nome AS usuario_nome FROM pedidos p JOIN usuarios u ON p.usuario_id = u.id ORDER BY p.id DESC";
-    conexao.query(sql, callback);
-};
+export async function listar(req, res, next) {
+    try {
+        const [rows] = await conexao.query("SELECT * FROM pedidos");
+        res.json(rows);
+    } catch (error) {
+        next(error);
+    }
+}
 
-export function buscarPorId(id, callback) {
-    const sql = "SELECT p.*, u.nome AS usuario_nome FROM pedidos p JOIN usuarios u ON p.usuario_id = u.id WHERE p.id = ?";
-    conexao.query(sql, [id], callback);
-};
+export async function buscarPorId(req, res, next) {
+    try {
+        const { id } = req.params;
+        const [rows] = await conexao.query("SELECT * FROM pedidos WHERE id = ?", [id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ mensagem: "Pedido não encontrado." });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        next(error);
+    }
+}
 
-export function listarPorUsuario(usuarioId, callback) {
-    const sql = "SELECT * FROM pedidos WHERE usuario_id = ? ORDER BY data_pedido DESC";
-    conexao.query(sql, [usuarioId], callback);
-};
+export async function criar(req, res, next) {
+    try {
+        const { usuario_id, data_pedido, status, total } = req.body;
+        const sql = "INSERT INTO pedidos (usuario_id, data_pedido, status, total) VALUES (?, ?, ?, ?)";
+        const [result] = await conexao.query(sql, [usuario_id, data_pedido, status, total]);
+        res.status(201).json({ mensagem: "Pedido criado com sucesso!", id: Number(result.insertId) });
+    } catch (error) {
+        next(error);
+    }
+}
 
-export function criar(dados, callback) {
-    const sql = "INSERT INTO pedidos (usuario_id, valor_total, status) VALUES (?, ?, ?)";
-    conexao.query(sql, [dados.usuario_id, dados.valor_total, dados.status || 'pendente'], callback);
-};
+export async function atualizar(req, res, next) {
+    try {
+        const { id } = req.params;
+        const { status, total } = req.body;
+        const sql = "UPDATE pedidos SET status = ?, total = ? WHERE id = ?";
+        const [result] = await conexao.query(sql, [status, total, id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ mensagem: "Pedido não encontrado." });
+        }
+        res.json({ mensagem: "Pedido atualizado com sucesso!" });
+    } catch (error) {
+        next(error);
+    }
+}
 
-export function atualizarStatus(id, status, callback) {
-    const sql = "UPDATE pedidos SET status = ? WHERE id = ?";
-    conexao.query(sql, [status, id], callback);
-};
-
-export function excluir(id, callback) {
-    const sql = "DELETE FROM pedidos WHERE id = ?";
-    conexao.query(sql, [id], callback);
-};
+export async function excluir(req, res, next) {
+    try {
+        const { id } = req.params;
+        const [result] = await conexao.query("DELETE FROM pedidos WHERE id = ?", [id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ mensagem: "Pedido não encontrado." });
+        }
+        res.json({ mensagem: "Pedido excluído com sucesso!" });
+    } catch (error) {
+        next(error);
+    }
+}

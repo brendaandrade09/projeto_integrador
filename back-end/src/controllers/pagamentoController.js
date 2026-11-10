@@ -1,26 +1,62 @@
 import conexao from "../../db.js";
 
-export function listar(callback) {
-    const sql = "SELECT * FROM pagamentos ORDER BY id DESC";
-    conexao.query(sql, callback);
-};
+export async function listar(req, res, next) {
+    try {
+        const [rows] = await conexao.query("SELECT * FROM pagamentos");
+        res.json(rows);
+    } catch (error) {
+        next(error);
+    }
+}
 
-export function buscarPorPedido(pedidoId, callback) {
-    const sql = "SELECT * FROM pagamentos WHERE pedido_id = ?";
-    conexao.query(sql, [pedidoId], callback);
-};
+export async function buscarPorId(req, res, next) {
+    try {
+        const { id } = req.params;
+        const [rows] = await conexao.query("SELECT * FROM pagamentos WHERE id = ?", [id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ mensagem: "Pagamento não encontrado." });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        next(error);
+    }
+}
 
-export function criar(dados, callback) {
-    const sql = "INSERT INTO pagamentos (pedido_id, metodo_pagamento, status_pagamento, valor) VALUES (?, ?, ?, ?)";
-    conexao.query(sql, [dados.pedido_id, dados.metodo_pagamento, dados.status_pagamento || 'pendente', dados.valor], callback);
-};
+export async function criar(req, res, next) {
+    try {
+        const { pedido_id, forma_pagamento, valor, status } = req.body;
+        const sql = "INSERT INTO pagamentos (pedido_id, forma_pagamento, valor, status) VALUES (?, ?, ?, ?)";
+        const [result] = await conexao.query(sql, [pedido_id, forma_pagamento, valor, status]);
+        res.status(201).json({ mensagem: "Pagamento registado com sucesso!", id: Number(result.insertId) });
+    } catch (error) {
+        next(error);
+    }
+}
 
-export function atualizarStatus(id, status, callback) {
-    const sql = "UPDATE pagamentos SET status_pagamento = ? WHERE id = ?";
-    conexao.query(sql, [status, id], callback);
-};
+export async function atualizar(req, res, next) {
+    try {
+        const { id } = req.params;
+        const { forma_pagamento, valor, status } = req.body;
+        const sql = "UPDATE pagamentos SET forma_pagamento = ?, valor = ?, status = ? WHERE id = ?";
+        const [result] = await conexao.query(sql, [forma_pagamento, valor, status, id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ mensagem: "Pagamento não encontrado." });
+        }
+        res.json({ mensagem: "Pagamento atualizado com sucesso!" });
+    } catch (error) {
+        next(error);
+    }
+}
 
-export function excluir(id, callback) {
-    const sql = "DELETE FROM pagamentos WHERE id = ?";
-    conexao.query(sql, [id], callback);
-};
+export async function excluir(req, res, next) {
+    try {
+        const { id } = req.params;
+        const [result] = await conexao.query("DELETE FROM pagamentos WHERE id = ?", [id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ mensagem: "Pagamento não encontrado." });
+        }
+        res.json({ mensagem: "Pagamento eliminado com sucesso!" });
+    } catch (error) {
+        next(error);
+    }
+}

@@ -1,4 +1,4 @@
-import {Router} from "express";
+import { Router } from "express";
 import * as fornecedorController from "../controllers/fornecedorController.js";
 import validarId from "../middlewares/validarId.js";
 const router = Router();

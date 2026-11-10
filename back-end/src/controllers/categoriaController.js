@@ -1,6 +1,6 @@
 import * as categoriaModel from "../models/categoriaModel.js";
 import { textoValido } from "../utils/validacoes.js";
-export function listar (req, res, next) {
+export function listar(req, res, next) {
     categoriaModel.listar((erro, resultado) => {
         if (erro) return next(erro);
         return res.status(200).json(resultado);

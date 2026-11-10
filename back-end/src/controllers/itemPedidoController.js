@@ -25,7 +25,7 @@ export async function buscarPorId(req, res, next) {
         const { id } = req.params;
         const sql = "SELECT ip.*, p.nome AS produto_nome, p.preco FROM itens_pedido ip JOIN produtos p ON ip.produto_id = p.id WHERE ip.id = ?";
         const [rows] = await conexao.query(sql, [id]);
-        
+
         if (rows.length === 0) {
             return res.status(404).json({ mensagem: "Item de pedido não encontrado." });
         }
@@ -54,7 +54,7 @@ export async function atualizar(req, res, next) {
         const { quantidade, preco_unitario } = req.body;
         const sql = "UPDATE itens_pedido SET quantidade = ?, preco_unitario = ? WHERE id = ?";
         const [result] = await conexao.query(sql, [quantidade, preco_unitario, id]);
-        
+
         if (result.affectedRows === 0) {
             return res.status(404).json({ mensagem: "Item de pedido não encontrado." });
         }
@@ -70,7 +70,7 @@ export async function excluir(req, res, next) {
         const { id } = req.params;
         const sql = "DELETE FROM itens_pedido WHERE id = ?";
         const [result] = await conexao.query(sql, [id]);
-        
+
         if (result.affectedRows === 0) {
             return res.status(404).json({ mensagem: "Item de pedido não encontrado." });
         }

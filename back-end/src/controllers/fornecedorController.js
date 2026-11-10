@@ -1,4 +1,4 @@
-import * as categoriaModel from "../models/fornecedorModel.js";
+import * as fornecedorModel from "../models/fornecedorModel.js";
 import { textoValido } from "../utils/validacoes.js";
 export function listar(req, res, next) {
     fornecedorModel.listar((erro, resultado) => {

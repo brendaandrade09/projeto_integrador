@@ -3,11 +3,11 @@ import * as fornecedorController from "../controllers/fornecedorController.js";
 import validarId from "../middlewares/validarId.js";
 const router = Router();
 
-router.get("/fornecedores", fornecedorController.listar);
+router.get("/", fornecedorController.listar);
 
 router.get("/:id", validarId, fornecedorController.buscarPorId);
 
-router.post("/fornecedores", fornecedorController.criar);
+router.post("/", fornecedorController.criar);
 
 router.put("/:id", validarId, fornecedorController.atualizar);
 

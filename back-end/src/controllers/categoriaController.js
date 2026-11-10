@@ -19,7 +19,7 @@ export function buscarPorId(req, res, next) {
 
 export function criar(req, res, next) {
     const { nome, descricao } = req.body ?? {};
-    if (!textoValido(nome, 100) || !textoValido(pais, 560)) {
+    if (!textoValido(nome, 100) || !textoValido(descricao, 560)) {
         return res.status(400).json({ erro: "Informe nome (até 100 caracteres) e descricao (até 560)" });
     }
     const dados = { nome: nome.trim(), descricao: descricao.trim() };
@@ -35,7 +35,7 @@ export function criar(req, res, next) {
 
 export function atualizar(req, res, next) {
     const { nome, descricao } = req.body ?? {};
-    if (!textoValido(nome, 100) || !textoValido(pais, 560)) {
+    if (!textoValido(nome, 100) || !textoValido(descricao, 560)) {
         return res.status(400).json({ erro: "Informe nome (até 100 caracteres) e descricao (até 560)" });
     }
     const dados = { nome: nome.trim(), descricao: descricao.trim() };

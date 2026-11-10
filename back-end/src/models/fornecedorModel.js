@@ -1,4 +1,4 @@
-import conexao from "../../db.js";
+import conexao from "../../config/db.js";
 export function listar(callback) {
     const sql = "SELECT * FROM fornecedores ORDER BY id";
     conexao.query(sql, callback);

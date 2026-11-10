@@ -9,7 +9,7 @@ export function buscarPorId(id, callback) {
 };
 export function criar(dados, callback) { 
     const sql = "INSERT INTO fornecedores (razao_social, cnpj, contato) VALUES (?, ?, ?)";
-    conexao.query(sql,[dados.titulo, dados.ano_lancamento, dados.estudio_id], callback);
+    conexao.query(sql,[dados.usuario_id, dados.numero, dados.bairro, dados.cidade, dados.estado, dados.cep], callback);
 };
 export function atualizar(id, dados, callback) { 
     const sql = "UPDATE fornecedores SET razao_social = ?, cnpj = ?, contato = ?, WHERE id = ?";

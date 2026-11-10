@@ -1,26 +1,69 @@
-import conexao from "../../db.js";
-
-export function listar(callback) {
-    const sql = "SELECT * FROM pagamentos ORDER BY id DESC";
-    conexao.query(sql, callback);
+import * as pagamentoModel from "../models/pagamentoModel.js";
+import { textoValido } from "../utils/validacoes.js";
+import { inteiroPositivo } from "../utils/validacoes.js";
+export function listar(req, res, next) {
+    pagamentoModel.listar((erro, resultado) => {
+        if (erro) return next(erro);
+        return res.status(200).json(resultado);
+    });
 };
 
-export function buscarPorPedido(pedidoId, callback) {
-    const sql = "SELECT * FROM pagamentos WHERE pedido_id = ?";
-    conexao.query(sql, [pedidoId], callback);
+export function buscarPorId(req, res, next) {
+    pagamentoModel.buscarPorId(req.id, (erro, resultado) => {
+        if (erro) return next(erro);
+        if (resultado.length === 0) {
+            return res.status(404).json({ erro: "Pagamento não encontrado" });
+        }
+        return res.status(200).json(resultado[0]);
+    });
 };
 
-export function criar(dados, callback) {
-    const sql = "INSERT INTO pagamentos (pedido_id, metodo_pagamento, status_pagamento, valor) VALUES (?, ?, ?, ?)";
-    conexao.query(sql, [dados.pedido_id, dados.metodo_pagamento, dados.status_pagamento || 'pendente', dados.valor], callback);
+export function criar(req, res, next) {
+    const { pedido_id, metodo, status, data_pagamento } = req.body ?? {};
+    if (!inteiroPositivo(pedido_id) || pedido_id > 9999 || !textoValido(metodo, 560) || !textoValido(status, 560)) {
+        return res.status(400).json({
+            erro: "Informe pedido_id inteiro positivo, metodo, status e data_pagamento."
+        });
+    }
+    const dados = { pedido_id, metodo, status, data_pagamento };
+
+    pagamentoModel.criar(dados, (erro, resultado) => {
+        if (erro) return next(erro);
+        return res.status(201).json({
+            mensagem: "Pagamento cadastrado com sucesso",
+            id: resultado.insertId
+        });
+    });
 };
 
-export function atualizarStatus(id, status, callback) {
-    const sql = "UPDATE pagamentos SET status_pagamento = ? WHERE id = ?";
-    conexao.query(sql, [status, id], callback);
+export function atualizar(req, res, next) {
+    const { pedido_id, metodo, status, data_pagamento } = req.body ?? {};
+    if (!inteiroPositivo(pedido_id) || pedido_id > 9999 || !textoValido(metodo, 560) || !textoValido(status, 560)) {
+        return res.status(400).json({
+            erro: "Informe pedido_id inteiro positivo, metodo, status e data_pagamento."
+        });
+    }
+    const dados = { pedido_id, metodo, status, data_pagamento };
+
+    // Consulta didática para confirmar que o registro existe antes de editar.
+    pagamentoModel.buscarPorId(req.id, (erro, registros) => {
+        if (erro) return next(erro);
+        if (registros.length === 0) {
+            return res.status(404).json({ erro: "Pagamento não encontrado" });
+        }
+        pagamentoModel.atualizar(req.id, dados, (erro, resultado) => {
+            if (erro) return next(erro);
+            return res.status(200).json({ mensagem: "Pagamento atualizado com sucesso" });
+        });
+    });
 };
 
-export function excluir(id, callback) {
-    const sql = "DELETE FROM pagamentos WHERE id = ?";
-    conexao.query(sql, [id], callback);
+export function excluir(req, res, next) {
+    pagamentoModel.excluir(req.id, (erro, resultado) => {
+        if (erro) return next(erro);
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ erro: "Pagamento não encontrado" });
+        }
+        return res.status(200).json({ mensagem: "Pagamento excluído com sucesso" });
+    });
 };

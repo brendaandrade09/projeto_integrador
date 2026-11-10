@@ -38,9 +38,9 @@ export function criar(req, res, next) {
 
 export function atualizar(req, res, next) {
     const { usuario_id, data_pedido, status, valor_total } = req.body ?? {};
-    if (!inteiroPositivo(pedido_id) || pedido_id > 9999 || !textoValido(metodo, 560) || !textoValido(status, 560)) {
+    if (!inteiroPositivo(pedido_id) || pedido_id > 9999 || !textoValido(status, 560)) {
         return res.status(400).json({
-            erro: "Informe pedido_id inteiro positivo, metodo, status e valor_total."
+            erro: "Informe usuario_id inteiro positivo, status e valor_total."
         });
     }
     const dados = { usuario_id, data_pedido, status, valor_total };

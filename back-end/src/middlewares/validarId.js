@@ -1,10 +1,7 @@
 export default function validarId(req, res, next) {
-    const id = Number(req.params.id);
-
-    if (!/^\d+$/.test(req.params.id) || !Number.isSafeInteger(id) || id <= 0) {
-        return res.status(400).json({ erro: "O ID deve ser um número inteiro positivo" });
+    const { id } = req.params;
+    if (id && isNaN(Number(id))) {
+        return res.status(400).json({ mensagem: "ID inválido." });
     }
-
-    req.id = id;
     next();
 }

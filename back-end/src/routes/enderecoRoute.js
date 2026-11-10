@@ -3,11 +3,11 @@ import * as enderecoController from "../controllers/enderecoController.js";
 import validarId from "../middlewares/validarId.js";
 const router = Router();
 
-router.get("/", enderecoController.listar);
+router.get("/enderecos", enderecoController.listar);
 
 router.get("/:id", validarId, enderecoController.buscarPorId);
 
-router.post("/", enderecoController.criar);
+router.post("/enderecos", enderecoController.criar);
 
 router.put("/:id", validarId, enderecoController.atualizar);
 

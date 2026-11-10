@@ -33,7 +33,7 @@ app.use("/itensPedido", itemPedidoRoute);
 
 app.use("/pagamento", pagamentoRoute);
 
-// app.use("/pedido", pedidoRoute);
+app.use("/pedido", pedidoRoute);
 
 // app.use("/produto", produtoRoute);
 

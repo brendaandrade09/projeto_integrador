@@ -1,69 +1,62 @@
-import * as pedidoModel from "../models/pedidoModel.js";
-import { textoValido } from "../utils/validacoes.js";
-import { inteiroPositivo } from "../utils/validacoes.js";
-export function listar(req, res, next) {
-    pedidoModel.listar((erro, resultado) => {
-        if (erro) return next(erro);
-        return res.status(200).json(resultado);
-    });
-};
+import conexao from "../../db.js";
 
-export function buscarPorId(req, res, next) {
-    pedidoModel.buscarPorId(req.id, (erro, resultado) => {
-        if (erro) return next(erro);
-        if (resultado.length === 0) {
-            return res.status(404).json({ erro: "Pedido não encontrado" });
-        }
-        return res.status(200).json(resultado[0]);
-    });
-};
-
-export function criar(req, res, next) {
-    const { usuario_id, data_pedido, status, valor_total } = req.body ?? {};
-    if (!inteiroPositivo(usuario_id) || usuario_id > 9999 || !textoValido(status, 560)) {
-        return res.status(400).json({
-            erro: "Informe usuario_id inteiro positivo, status e valor_total."
-        });
+export async function listar(req, res, next) {
+    try {
+        const [rows] = await conexao.query("SELECT * FROM pedidos");
+        res.json(rows);
+    } catch (error) {
+        next(error);
     }
-    const dados = { usuario_id, data_pedido, status, valor_total };
+}
 
-    pedidoModel.criar(dados, (erro, resultado) => {
-        if (erro) return next(erro);
-        return res.status(201).json({
-            mensagem: "Pedido cadastrado com sucesso",
-            id: resultado.insertId
-        });
-    });
-};
-
-export function atualizar(req, res, next) {
-    const { usuario_id, data_pedido, status, valor_total } = req.body ?? {};
-    if (!inteiroPositivo(pedido_id) || pedido_id > 9999 || !textoValido(status, 560)) {
-        return res.status(400).json({
-            erro: "Informe usuario_id inteiro positivo, status e valor_total."
-        });
+export async function buscarPorId(req, res, next) {
+    try {
+        const { id } = req.params;
+        const [rows] = await conexao.query("SELECT * FROM pedidos WHERE id = ?", [id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ mensagem: "Pedido não encontrado." });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        next(error);
     }
-    const dados = { usuario_id, data_pedido, status, valor_total };
+}
 
-    // Consulta didática para confirmar que o registro existe antes de editar.
-    pedidoModel.buscarPorId(req.id, (erro, registros) => {
-        if (erro) return next(erro);
-        if (registros.length === 0) {
-            return res.status(404).json({ erro: "Pedido não encontrado" });
-        }
-        pedidoModel.atualizar(req.id, dados, (erro, resultado) => {
-            if (erro) return next(erro);
-            return res.status(200).json({ mensagem: "Pedido atualizado com sucesso" });
-        });
-    });
-};
+export async function criar(req, res, next) {
+    try {
+        const { usuario_id, data_pedido, status, total } = req.body;
+        const sql = "INSERT INTO pedidos (usuario_id, data_pedido, status, total) VALUES (?, ?, ?, ?)";
+        const [result] = await conexao.query(sql, [usuario_id, data_pedido, status, total]);
+        res.status(201).json({ mensagem: "Pedido criado com sucesso!", id: Number(result.insertId) });
+    } catch (error) {
+        next(error);
+    }
+}
 
-export function excluir(req, res, next) {
-    pedidoModel.excluir(req.id, (erro, resultado) => {
-        if (erro) return next(erro);
-        if (resultado.affectedRows === 0) {
-            return res.status(404).json({ erro: "Pedido não encontrado" });
+export async function atualizar(req, res, next) {
+    try {
+        const { id } = req.params;
+        const { status, total } = req.body;
+        const sql = "UPDATE pedidos SET status = ?, total = ? WHERE id = ?";
+        const [result] = await conexao.query(sql, [status, total, id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ mensagem: "Pedido não encontrado." });
         }
-        return res.status(200).json({ mensagem: "Pedido excluído com sucesso" });
-    });
-};
+        res.json({ mensagem: "Pedido atualizado com sucesso!" });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function excluir(req, res, next) {
+    try {
+        const { id } = req.params;
+        const [result] = await conexao.query("DELETE FROM pedidos WHERE id = ?", [id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ mensagem: "Pedido não encontrado." });
+        }
+        res.json({ mensagem: "Pedido excluído com sucesso!" });
+    } catch (error) {
+        next(error);
+    }
+}

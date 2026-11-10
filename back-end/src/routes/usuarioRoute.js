@@ -3,14 +3,14 @@ import * as usuarioController from "../controllers/usuarioController.js";
 import validarId from "../middlewares/validarId.js";
 const router = Router();
 
-router.get("/", usuarioController.listar);
+router.get("/usuarios", usuarioController.listar);
 
-router.get("/:id", validarId, usuarioController.buscarPorId);
+router.get("/usuarios:id", validarId, usuarioController.buscarPorId);
 
-router.post("/", usuarioController.criar);
+router.post("/usuarios", usuarioController.criar);
 
-router.put("/:id", validarId, usuarioController.atualizar);
+router.put("/usuarios:id", validarId, usuarioController.atualizar);
 
-router.delete("/:id", validarId, usuarioController.excluir);
+router.delete("/usuarios:id", validarId, usuarioController.excluir);
 
 export default router;

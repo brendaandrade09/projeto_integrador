@@ -1,62 +1,69 @@
-import conexao from "../../db.js";
+import * as pagamentoModel from "../models/pagamentoModel.js";
+import { textoValido } from "../utils/validacoes.js";
+import { inteiroPositivo } from "../utils/validacoes.js";
+export function listar(req, res, next) {
+    pagamentoModel.listar((erro, resultado) => {
+        if (erro) return next(erro);
+        return res.status(200).json(resultado);
+    });
+};
 
-export async function listar(req, res, next) {
-    try {
-        const [rows] = await conexao.query("SELECT * FROM pagamentos");
-        res.json(rows);
-    } catch (error) {
-        next(error);
-    }
-}
-
-export async function buscarPorId(req, res, next) {
-    try {
-        const { id } = req.params;
-        const [rows] = await conexao.query("SELECT * FROM pagamentos WHERE id = ?", [id]);
-        if (rows.length === 0) {
-            return res.status(404).json({ mensagem: "Pagamento não encontrado." });
+export function buscarPorId(req, res, next) {
+    pagamentoModel.buscarPorId(req.id, (erro, resultado) => {
+        if (erro) return next(erro);
+        if (resultado.length === 0) {
+            return res.status(404).json({ erro: "Pagamento não encontrado" });
         }
-        res.json(rows[0]);
-    } catch (error) {
-        next(error);
-    }
-}
+        return res.status(200).json(resultado[0]);
+    });
+};
 
-export async function criar(req, res, next) {
-    try {
-        const { pedido_id, forma_pagamento, valor, status } = req.body;
-        const sql = "INSERT INTO pagamentos (pedido_id, forma_pagamento, valor, status) VALUES (?, ?, ?, ?)";
-        const [result] = await conexao.query(sql, [pedido_id, forma_pagamento, valor, status]);
-        res.status(201).json({ mensagem: "Pagamento registado com sucesso!", id: Number(result.insertId) });
-    } catch (error) {
-        next(error);
+export function criar(req, res, next) {
+    const { pedido_id, metodo, status, data_pagamento } = req.body ?? {};
+    if (!inteiroPositivo(pedido_id) || pedido_id > 9999 || !textoValido(metodo, 560) || !textoValido(status, 560)) {
+        return res.status(400).json({
+            erro: "Informe pedido_id inteiro positivo, metodo, status e data_pagamento."
+        });
     }
-}
+    const dados = { pedido_id, metodo, status, data_pagamento };
 
-export async function atualizar(req, res, next) {
-    try {
-        const { id } = req.params;
-        const { forma_pagamento, valor, status } = req.body;
-        const sql = "UPDATE pagamentos SET forma_pagamento = ?, valor = ?, status = ? WHERE id = ?";
-        const [result] = await conexao.query(sql, [forma_pagamento, valor, status, id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ mensagem: "Pagamento não encontrado." });
+    pagamentoModel.criar(dados, (erro, resultado) => {
+        if (erro) return next(erro);
+        return res.status(201).json({
+            mensagem: "Pagamento cadastrado com sucesso",
+            id: resultado.insertId
+        });
+    });
+};
+
+export function atualizar(req, res, next) {
+    const { pedido_id, metodo, status, data_pagamento } = req.body ?? {};
+    if (!inteiroPositivo(pedido_id) || pedido_id > 9999 || !textoValido(metodo, 560) || !textoValido(status, 560)) {
+        return res.status(400).json({
+            erro: "Informe pedido_id inteiro positivo, metodo, status e data_pagamento."
+        });
+    }
+    const dados = { pedido_id, metodo, status, data_pagamento };
+
+    // Consulta didática para confirmar que o registro existe antes de editar.
+    pagamentoModel.buscarPorId(req.id, (erro, registros) => {
+        if (erro) return next(erro);
+        if (registros.length === 0) {
+            return res.status(404).json({ erro: "Pagamento não encontrado" });
         }
-        res.json({ mensagem: "Pagamento atualizado com sucesso!" });
-    } catch (error) {
-        next(error);
-    }
-}
+        pagamentoModel.atualizar(req.id, dados, (erro, resultado) => {
+            if (erro) return next(erro);
+            return res.status(200).json({ mensagem: "Pagamento atualizado com sucesso" });
+        });
+    });
+};
 
-export async function excluir(req, res, next) {
-    try {
-        const { id } = req.params;
-        const [result] = await conexao.query("DELETE FROM pagamentos WHERE id = ?", [id]);
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ mensagem: "Pagamento não encontrado." });
+export function excluir(req, res, next) {
+    pagamentoModel.excluir(req.id, (erro, resultado) => {
+        if (erro) return next(erro);
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ erro: "Pagamento não encontrado" });
         }
-        res.json({ mensagem: "Pagamento eliminado com sucesso!" });
-    } catch (error) {
-        next(error);
-    }
-}
+        return res.status(200).json({ mensagem: "Pagamento excluído com sucesso" });
+    });
+};

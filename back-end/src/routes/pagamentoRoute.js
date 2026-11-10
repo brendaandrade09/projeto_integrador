@@ -4,9 +4,9 @@ import validarId from "../middlewares/validarId.js";
 
 const router = Router();
 
-router.get("/pagamentos", pagamentoController.listar);
+router.get("/", pagamentoController.listar);
 router.get("/:id", validarId, pagamentoController.buscarPorId);
-router.post("/pagamentos", pagamentoController.criar);
+router.post("/", pagamentoController.criar);
 router.put("/:id", validarId, pagamentoController.atualizar);
 router.delete("/:id", validarId, pagamentoController.excluir);
 

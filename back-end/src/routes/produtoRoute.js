@@ -3,14 +3,14 @@ import * as produtoController from "../controllers/produtoController.js";
 import validarId from "../middlewares/validarId.js";
 const router = Router();
 
-router.get("/", produtoController.listar);
+router.get("/produtos", produtoController.listar);
 
-router.get("/:id", validarId, produtoController.buscarPorId);
+router.get("/produtos:id", validarId, produtoController.buscarPorId);
 
-router.post("/", produtoController.criar);
+router.post("/produtos", produtoController.criar);
 
-router.put("/:id", validarId, produtoController.atualizar);
+router.put("/produtos:id", validarId, produtoController.atualizar);
 
-router.delete("/:id", validarId, produtoController.excluir);
+router.delete("/produtos:id", validarId, produtoController.excluir);
 
 export default router;

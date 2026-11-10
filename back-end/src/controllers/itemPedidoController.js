@@ -1,4 +1,12 @@
-import conexao from "../../db.js";
+import * as itemPedidoModel from "../models/itemPedidoModel.js";
+import { textoValido } from "../utils/validacoes.js";
+import { inteiroPositivo } from "../utils/validacoes.js";
+export function listar(req, res, next) {
+    itemPedidoModel.listar((erro, resultado) => {
+        if (erro) return next(erro);
+        return res.status(200).json(resultado);
+    });
+};
 
 // 1. Função listar (usada em router.get("/"))
 export async function listar(req, res, next) {

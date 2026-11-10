@@ -10,7 +10,6 @@ router.get("/pedidos:id", validarId, pedidoController.buscarPorId);
 router.post("/pedidos", pedidoController.criar);
 
 router.put("/:id", validarId, pedidoController.atualizar);
-
 router.delete("/:id", validarId, pedidoController.excluir);
 
 export default router;

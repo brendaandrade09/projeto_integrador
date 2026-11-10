@@ -35,9 +35,9 @@ app.use("/pagamento", pagamentoRoute);
 
 app.use("/pedido", pedidoRoute);
 
-// app.use("/produto", produtoRoute);
+app.use("/produto", produtoRoute);
 
-// app.use("/usuario", usuarioRoute);
+app.use("/usuario", usuarioRoute);
 
 
 
@@ -46,17 +46,17 @@ app.use((req, res) => {
 });
 app.use(tratarErro);
 
-// conexao.connect((erro) => {
-//     if (erro) {
-//         console.error("Erro ao conectar ao banco:", erro.code || erro.message);
-//         process.exit(1);
-//     }
-//     console.log("Conectado ao banco biostore");
+conexao.connect((erro) => {
+    if (erro) {
+        console.error("Erro ao conectar ao banco:", erro.code || erro.message);
+        process.exit(1);
+    }
+    console.log("Conectado ao banco biostore");
     const servidor = app.listen(PORTA, () => {
         console.log(`Servidor iniciado em http://localhost:${PORTA}`);
     });
-//     servidor.on("error", (erro) => {
-//         console.error("Erro ao iniciar servidor:", erro.code || erro.message);
-//         conexao.end(() => process.exit(1));
-//     });
-// });
+    servidor.on("error", (erro) => {
+        console.error("Erro ao iniciar servidor:", erro.code || erro.message);
+        conexao.end(() => process.exit(1));
+    });
+});
